@@ -1,33 +1,3 @@
-
-f Contents
-
-- Abstract
-- How Google Handles Big Data Daily Operations
-- BigQuery: Externalization of Dremel
-- Dremel Can Scan 35 Billion Rows Without an
-- Columnar Storage and Tree Architecture of Dremel Index in Tens of Seconds
-- Columnar Storage
-- Tree Architecture
-- Dremel: Key to Run Business at “Google Speed”
-- And what is BigQuery?
-- BigQuery versus MapReduce
-- Comparing BigQuery and MapReduce
-- MapReduce Limitations
-- BigQuery and MapReduce Comparison
-- Data Warehouse Solutions and Appliances for OLAP/BI
-- Relational OLAP (ROLAP)
-- Multidimensional OLAP (MOLAP)
-- Full-scan Speed Is the Solution.
-- BigQuery’s Unique Abilities
-- Cloud-Powered Massively Parallel Query Service
-- Why Use the Google Cloud Platform?
-- Conclusion
-- References
-- Acknowledgements
-
-
-**White Paper | BigQuery**
-
 **An Inside Look at Google BigQuery**
 
 **by Kazunori Sato, Solutions Architect, Cloud Solutions team**
