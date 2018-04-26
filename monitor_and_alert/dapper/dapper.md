@@ -106,7 +106,7 @@ been explored in a number of excellent previous articles,
 among which Pinpoint [9], Magpie [3] and X-Trace [12]
 are most closely related to Dapper. These systems tend
 to be described in the research literature at a very early
-![](1.Png "Figure 1: The path taken through a simple serving
+![](1.png "Figure 1: The path taken through a simple serving
 system on behalf of user requestX. The letter-labeled
 nodes represent processes in a distributed system.")
 point in their development, before there is an opportunity
@@ -183,7 +183,7 @@ We illustrate how spans form the structure of a larger
 trace in Figure 2. Dapper records a human-readablespan
 namefor each span, as well as aspan idandparent id
 
-![](2.Png "Figure 2: The causal and temporal relationships between five spans in a Dapper trace tree.")
+![](2.png "Figure 2: The causal and temporal relationships between five spans in a Dapper trace tree.")
 
 in order to reconstruct the causal relationships between
 the individual spans in a single distributed trace. Spans
@@ -204,7 +204,7 @@ rest of the span data.
 It is important to note that a span can contain information from multiple hosts; in fact, every RPC span contains annotations from both the client and server processes, making two-host spans the most common ones.
 Since the timestamps on client and server come from
 
-![](3.Png "Figure 3: A detailed view of a single span from Figure 2.")
+![](3.png "Figure 3: A detailed view of a single span from Figure 2.")
 
 different host machines, we have to be mindful of clock
 skew. In our analysis tools, we take advantage of the fact
@@ -218,22 +218,22 @@ timestamps on the server side of RPCs.
 Dapper is able to follow distributed control paths with
 near-zero intervention from application developers by relying almost entirely on instrumentation of a few common libraries:
 
-- When a thread handles a traced control path, Dap    per attaches atrace contextto thread-local storage.
-    A trace context is a small and easily copyable con    tainer of span attributes such as trace and span ids.
-- When computation is deferred or made asyn    chronous, most Google developers use a com    mon control flow library to construct callbacks and
+- When a thread handles a traced control path, Dapper attaches atrace contextto thread-local storage.
+    A trace context is a small and easily copyable container of span attributes such as trace and span ids.
+- When computation is deferred or made asynchronous, most Google developers use a common control flow library to construct callbacks and
     schedule them in a thread pool or other executor.
     Dapper ensures that all such callbacks store the
-    trace context of their creator, and this trace con    text is associated with the appropriate thread when
+    trace context of their creator, and this trace context is associated with the appropriate thread when
     the callback is invoked. In this way, the Dapper
     ids used for trace reconstruction are able to follow
     asynchronous control paths transparently.
 - Nearly all of Google’s inter-process communication
-    is built around a single RPC framework with bind    ings in both C++ and Java. We have instrumented
+    is built around a single RPC framework with bindings in both C++ and Java. We have instrumented
     that framework to define spans around all RPCs.
     The span and trace ids are transmitted from client
     to server for traced RPCs. For RPC-based systems
     like those in wide use at Google, this is an essential
-    instrumentation point. We plan to instrument non    RPC communication frameworks as they evolve and
+    instrumentation point. We plan to instrument non-RPC communication frameworks as they evolve and
     find a user base.
 
 Dapper trace data is language-independent and many
@@ -264,9 +264,6 @@ t.record("cache hit for " + request);
 else
 t.record("cache miss for " + request);
 ```
-
-![](3.png "Figure 4: Common-case usage patterns for Dapper’s
-annotation APIs in C++ and Java.")
 
 monitor higher level system behavior or to help in debugging problems. We allow users to define timestamped
 annotations through a simple API, the heart of which is
@@ -355,14 +352,12 @@ assurance than source code audits.
 
 ## 3 Dapper Deployment Status
 
-
 Dapper has been our production tracing system for over
 two years. In this section we report on the status of
 the system, focusing on how well it met our objectives
 of ubiquitous deployment and application-level transparency.
 
 ## 3.1 Dapper runtime library
-
 
 Perhaps the most critical part of Dapper’s code base is
 the instrumentation of basic RPC, threading and control
