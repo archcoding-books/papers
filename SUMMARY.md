@@ -2,6 +2,7 @@
 
 * [Introduction](README.md)
 * [Distributed System](distributed_system/README.md)
+    * [Raft](distributed_system/raft/raft.md)
 * [存储](storage/README.md)
     * [etcd](storage/etcd.md)
     * [BigQuery](storage/bigquery.md)
