@@ -298,13 +298,7 @@ important locality relationships.
 
 ## 3 TrueTime
 
-```
-Method Returns
-TT.now() TTinterval:[earliest,latest]
-TT.after(t) true ifthas definitely passed
-TT.before(t) true ifthas definitely not arrived
-```
-![](table_1.png)
+![](table_1.png)     
 This section describes the TrueTime API and sketches
 its implementation. We leave most of the details for another paper: our goal is to demonstrate the power of
 having such an API. Table 1 lists the methods of the
@@ -351,17 +345,6 @@ from about 1 to 7 ms over each poll interval.is therefore 4 ms most of the time.
 currently 30 seconds, and the current applied drift rate is
 set at 200 microseconds/second, which together account
 
-
-```
-Timestamp Concurrency
-Operation Discussion Control Replica Required
-Read-Write Transaction §4.1.2 pessimistic leader
-Read-Only Transaction §4.1.4 lock-free
-leader for timestamp; any for
-read, subject to§4.1.
-Snapshot Read, client-provided timestamp — lock-free any, subject to§4.1.
-Snapshot Read, client-provided bound §4.1.3 lock-free any, subject to§4.1.
-```
 
 ![](table_2.png)
 for the sawtooth bounds from 0 to 6 ms. The remaining 1 ms comes from the communication delay to the
@@ -487,6 +470,7 @@ for every replica in a groupg, over all transactionsTiprepared atg,tTMsafe=mini(
 prepared atg.
 
 ### 4.1.4 Assigning Timestamps to RO Transactions
+
 A read-only transaction executes in two phases: assign
 a timestampsread[8], and then execute the transaction’s
 reads as snapshot reads atsread. The snapshot reads can
@@ -733,7 +717,6 @@ are extremely infrequent, relative to much more serious
 hardware problems. As a result, we believe that TrueTime’s implementation is as trustworthy as any other
 piece of software upon which Spanner depends.
 Figure 6 presents TrueTime data taken at several thousand spanserver machines across datacenters up to 2200
-
 
 ![](figure_6.png)
 
