@@ -1,7 +1,7 @@
 # Summary
 
 * [Introduction](README.md)
-* [Distributed System](distributed_system/README.md)
+* [协议](distributed_system/README.md)
     * [Raft](distributed_system/raft/raft.md)
 * [存储](storage/README.md)
     * [Spanner](storage/spanner/spanner.md)
