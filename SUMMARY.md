@@ -3,6 +3,7 @@
 * [Introduction](README.md)
 * [协议](distributed_system/README.md)
     * [Raft](distributed_system/raft/raft.md)
+    * [Availability in Large Service Infrastructures](distributed_system/avail_in_large_svc_infra/avail_in_large_svc_infra.md)
 * [存储](storage/README.md)
     * [Spanner](storage/spanner/spanner.md)
     * [Haystack](storage/haystack/haystack.md)
