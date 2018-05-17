@@ -538,8 +538,6 @@ Each worker process installs a signal handler that
 catches segmentation violations and bus errors. Before
 invoking a user Map or Reduce operation, the MapReduce library stores the sequence number of the argument
 in a global variable. If the user code generates a signal,
-```
-```
 the signal handler sends a “last gasp” UDP packet that
 contains the sequence number to the MapReduce master. When the master has seen more than one failure on
 a particular record, it indicates that the record should be
