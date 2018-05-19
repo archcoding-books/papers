@@ -10,6 +10,7 @@
     * [Spanner](storage/spanner/spanner.md)
     * [Haystack](storage/haystack/haystack.md)
     * [spanner becoming a sql system](storage/spanner_becoming_a_sql_system/spanner_becoming_a_sql_system.md)
+    * [GFS](storage/gfs/gfs.md)
 * [负载均衡](load_balance/README.md)
 * [消息队列](message_queue/README.md)
 * [监控报警](monitor_and_alert/README.md)
