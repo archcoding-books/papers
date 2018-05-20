@@ -11,6 +11,7 @@
     * [Haystack](storage/haystack/haystack.md)
     * [spanner becoming a sql system](storage/spanner_becoming_a_sql_system/spanner_becoming_a_sql_system.md)
     * [GFS](storage/gfs/gfs.md)
+    * [Big Table](storage/bigtable/bigtable.md)
     * [Windows Azure Storage](storage/windows_azure_storage/windows_azure_storage.md)
 * [负载均衡](load_balance/README.md)
 * [消息队列](message_queue/README.md)
