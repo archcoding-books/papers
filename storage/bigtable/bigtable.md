@@ -1,4 +1,4 @@
-Bigtable: A Distributed Storage System for Structured Data
+# Bigtable: A Distributed Storage System for Structured Data
 
 Fay Chang, Jeffrey Dean, Sanjay Ghemawat, Wilson C. Hsieh, Deborah A. WallachMike Burrows, Tushar Chandra, Andrew Fikes, Robert E. Gruber
 
@@ -139,7 +139,9 @@ Bigtable can be used with MapReduce [12], a frame-work for running large-scale p
 
 ## 4 Building Blocks
 
-Bigtable is built on several other pieces of Google in-frastructure. Bigtable uses the distributed Google FileSystem (GFS) [17] to store log and data files. A Bigtablecluster typically operates in a shared pool of machinesthat run a wide variety of other distributed applications,and Bigtable processes often share the same machineswith processes from other applications. Bigtable de-pends on a cluster management system for schedulingjobs, managing resources on shared machines, dealingwith machine failures, and monitoring machine status.The Google SSTable file format is used internally tostore Bigtable data. An SSTable provides a persistent,ordered immutable map from keys to values, where bothkeys and values are arbitrary byte strings. Operations areprovided to look up the value associated with a specified key, and to iterate over all key/value pairs in a specified
+Bigtable is built on several other pieces of Google in-frastructure. Bigtable uses the distributed Google FileSystem (GFS) [17] to store log and data files. A Bigtablecluster typically operates in a shared pool of machinesthat run a wide variety of other distributed applications,and Bigtable processes often share the same machineswith processes from other applications. Bigtable de-pends on a cluster management system for schedulingjobs, managing resources on shared machines, dealingwith machine failures, and monitoring machine status.  
+
+The Google SSTable file format is used internally tostore Bigtable data. An SSTable provides a persistent,ordered immutable map from keys to values, where bothkeys and values are arbitrary byte strings. Operations areprovided to look up the value associated with a specified key, and to iterate over all key/value pairs in a specified
 key range. Internally, each SSTable contains a sequence
 of blocks (typically each block is 64KB in size, but this
 is configurable). A block index (stored at the end of the
@@ -149,7 +151,8 @@ can be performed with a single disk seek: we first find
 the appropriate block by performing a binary search in
 the in-memory index, and then reading the appropriate
 block from disk. Optionally, an SSTable can be com pletely mapped into memory, which allows us to perform
-lookups and scans without touching disk.
+lookups and scans without touching disk.  
+
 Bigtable relies on a highly-available and persistent
 distributed lock service called Chubby [8]. A Chubby
 service consists of five active replicas, one of which is
@@ -165,7 +168,8 @@ expires if it is unable to renew its session lease within the
 lease expiration time. When a client’s session expires, it
 loses any locks and open handles. Chubby clients can
 also register callbacks on Chubby files and directories
-for notification of changes or session expiration.
+for notification of changes or session expiration.  
+
 Bigtable uses Chubby for a variety of tasks: to ensure
 that there is at most one active master at any time; to
 store the bootstrap location of Bigtable data (see Sec tion 5.1); to discover tablet servers and finalize tablet
@@ -181,9 +185,7 @@ unavailability was 0.0326%.
 
 ## 5 Implementation
 
-The Bigtable implementation has three major compo nents: a library that is linked into every client, one mas ter server, and many tablet servers. Tablet servers can be
-
-dynamically added (or removed) from a cluster to acco-modate changes in workloads.
+The Bigtable implementation has three major compo nents: a library that is linked into every client, one mas ter server, and many tablet servers. Tablet servers can be dynamically added (or removed) from a cluster to acco-modate changes in workloads.
 
 The master is responsible for assigning tablets to tabletservers, detecting the addition and expiration of tabletservers, balancing tablet-server load, and garbage col-lection of files in GFS. In addition, it handles schemachanges such as table and column family creations.Each tablet server manages a set of tablets (typicallywe have somewhere between ten to a thousand tablets pertablet server). The tablet server handles read and writerequests to the tablets that it has loaded, and also splitstablets that have grown too large.
 
@@ -198,9 +200,8 @@ We use a three-level hierarchy analogous to that of a B+-tree [10] to store tabl
 
 The first level is a file stored in Chubby that containsthe location of the root tablet. The root tablet containsthe location of all tablets in a special METADATA table.Each METADATA tablet contains the location of a set ofuser tablets. The root tablet is just the first tablet in the METADATA table, but is treated specially(cid:151)it is never split(cid:151)to ensure that the tablet location hierarchy has nomore than three levels.
 
-The METADATA table stores the location of a tabletunder a row key that is an encoding of the tablet’s table identifier and its end row. Each METADATA row stores approximately 1KB of data in memory. With a modest
-limit of 128 MB METADATA tablets, our three-level lo cation scheme is sufficient to address 234 tablets (or 261
-bytes in 128 MB tablets).
+The METADATA table stores the location of a tabletunder a row key that is an encoding of the tablet’s table identifier and its end row. Each METADATA row stores approximately 1KB of data in memory. With a modest limit of 128 MB METADATA tablets, our three-level lo cation scheme is sufficient to address 234 tablets (or 261 bytes in 128 MB tablets).   
+
 The client library caches tablet locations. If the client
 does not know the location of a tablet, or if it discov ers that cached location information is incorrect, then
 it recursively moves up the tablet location hierarchy.
@@ -214,20 +215,21 @@ Although tablet locations are stored in memory, so no
 GFS accesses are required, we further reduce this cost
 in the common case by having the client library prefetch
 tablet locations: it reads the metadata for more than one
-tablet whenever it reads the METADATA table.
-We also store secondary information in the
-METADATA table,
+tablet whenever it reads the METADATA table.   
 
-including a log of all events per taining to each tablet (such as when a server begins
+We also store secondary information in the
+METADATA table, including a log of all events per taining to each tablet (such as when a server begins
 serving it). This information is helpful for debugging
 and performance analysis.
-5.2 Tablet Assignment
+
+### 5.2 Tablet Assignment
 Each tablet is assigned to one tablet server at a time. The
 master keeps track of the set of live tablet servers, and
 the current assignment of tablets to tablet servers, in cluding which tablets are unassigned. When a tablet is
 unassigned, and a tablet server with sufficient room for
 the tablet is available, the master assigns the tablet by
-sending a tablet load request to the tablet server.
+sending a tablet load request to the tablet server.   
+
 Bigtable uses Chubby to keep track of tablet servers.
 When a tablet server starts, it creates, and acquires an
 exclusive lock on, a uniquely-named file in a specific
@@ -244,7 +246,7 @@ able to serve again, so it kills itself. Whenever a tablet
 server terminates (e.g., because the cluster management
 system is removing the tablet server’s machine from the
 cluster), it attempts to release its lock so that the master
-will reassign its tablets more quickly.
+will reassign its tablets more quickly.   
 
 The master is responsible for detecting when a tabletserver is no longer serving its tablets, and for reassign-ing those tablets as soon as possible. To detect when atablet server is no longer serving its tablets, the masterperiodically asks each tablet server for the status of itslock. If a tablet server reports that it has lost its lock,or if the master was unable to reach a server during itslast several attempts, the master attempts to acquire anexclusive lock on the server’s file. If the master is able toacquire the lock, then Chubby is live and the tablet serveris either dead or having trouble reaching Chubby, so themaster ensures that the tablet server can never serve againby deleting its server file. Once a server’s file has beendeleted, the master can move all the tablets that were pre-viously assigned to that server into the set of unassignedtablets. To ensure that a Bigtable cluster is not vulnera-ble to networking issues between the master and Chubby,the master kills itself if its Chubby session expires. How-ever, as described above, master failures do not changethe assignment of tablets to tablet servers.
 
@@ -252,7 +254,7 @@ When a master is started by the cluster managementsystem, it needs to discover t
 
 (1) The master grabsa unique master lock in Chubby, which prevents con-current master instantiations. (2) The master scans theservers directory in Chubby to find the live servers.(3) The master communicates with every live tabletserver to discover what tablets are already assigned toeach server. (4) The master scans the METADATA tableto learn the set of tablets. Whenever this scan encountersa tablet that is not already assigned, the master adds thetablet to the set of unassigned tablets, which makes thetablet eligible for tablet assignment.
 
-One complication is that the scan of the METADATAtable cannot happen until the METADATA tablets havebeen assigned. Therefore, before starting this scan (step4), the master adds the root tablet to the set of unassignedtablets if an assignment for the root tablet was not dis-covered during step 3. This addition ensures that the roottablet will be assigned. Because the root tablet containsthe names of all METADATA tablets, the master knowsabout all of them after it has scanned the root tablet.The set of existing tablets only changes when a ta-ble is created or deleted, two existing tablets are mergedto form one larger tablet, or an existing tablet is splitinto two smaller tablets. The master is able to keeptrack of these changes because it initiates all but the last.Tablet splits are treated specially since they are initi-ated by a tablet server. The tablet server commits thesplit by recording information for the new tablet in theMETADATA table. When the split has committed, it noti-fies the master. In case the split notification is lost because the tablet server or the master died), the master
+One complication is that the scan of the METADATAtable cannot happen until the METADATA tablets havebeen assigned. Therefore, before starting this scan (step4), the master adds the root tablet to the set of unassignedtablets if an assignment for the root tablet was not discovered during step 3. This addition ensures that the roottablet will be assigned. Because the root tablet containsthe names of all METADATA tablets, the master knowsabout all of them after it has scanned the root tablet.The set of existing tablets only changes when a table is created or deleted, two existing tablets are mergedto form one larger tablet, or an existing tablet is splitinto two smaller tablets. The master is able to keeptrack of these changes because it initiates all but the last.Tablet splits are treated specially since they are initi-ated by a tablet server. The tablet server commits thesplit by recording information for the new tablet in the METADATA table. When the split has committed, it notifies the master. In case the split notification is lost because the tablet server or the master died), the master
 detects the new tablet when it asks a tablet server to load
 the tablet that has now split. The tablet server will notify
 the master of the split, because the tablet entry it finds in
@@ -292,20 +294,20 @@ while tablets are split and merged.
 
 ### 5.4 Compactions
 
-As write operations execute, the size of the memtable in-creases. When the memtable size reaches a threshold, thememtable is frozen, a new memtable is created, and thefrozen memtable is converted to an SSTable and writtento GFS. This minor compaction process has two goals:it shrinks the memory usage of the tablet server, and itreduces the amount of data that has to be read from thecommit log during recovery if this server dies. Incom-ing read and write operations can continue while com-pactions occur.
+As write operations execute, the size of the memtable in-creases. When the memtable size reaches a threshold, thememtable is frozen, a new memtable is created, and thefrozen memtable is converted to an SSTable and writtento GFS. This minor compaction process has two goals:it shrinks the memory usage of the tablet server, and itreduces the amount of data that has to be read from thecommit log during recovery if this server dies. Incoming read and write operations can continue while com-pactions occur.
 
 Every minor compaction creates a new SSTable. If thisbehavior continued unchecked, read operations mightneed to merge updates from an arbitrary number ofSSTables. Instead, we bound the number of such filesby periodically executing a merging compaction in thebackground. A merging compaction reads the contentsof a few SSTables and the memtable, and writes out anew SSTable. The input SSTables and memtable can bediscarded as soon as the compaction has finished.A merging compaction that rewrites all SSTablesinto exactly one SSTable is called a major compaction.SSTables produced by non-major compactions can con-tain special deletion entries that suppress deleted data inolder SSTables that are still live. A major compaction,on the other hand, produces an SSTable that containsno deletion information or deleted data. Bigtable cy-cles through all of its tablets and regularly applies majorcompactions to them. These major compactions allowBigtable to reclaim resources used by deleted data, andalso allow it to ensure that deleted data disappears fromthe system in a timely fashion, which is important forservices that store sensitive data.
 
 ## 6 Refinements
 
-The implementation described in the previous sectionrequired a number of refinements to achieve the highperformance, availability, and reliability required by ourusers. This section describes portions of the implementa-tion in more detail in order to highlight these refinements.
+The implementation described in the previous sectionrequired a number of refinements to achieve the highperformance, availability, and reliability required by ourusers. This section describes portions of the implementation in more detail in order to highlight these refinements.
 
 ### Locality groups
 
 Clients can group multiple column families together intoa locality group. A separate SSTable is generated foreach locality group in each tablet. Segregating columnfamilies that are not typically accessed together into sep-arate locality groups enables more efficient reads. Forexample, page metadata in Webtable (such as languageand checksums) can be in one locality group, and thecontents of the page can be in a different group: an application that wants to read the metadata does not need
 to read through all of the page contents.
 In addition, some useful tuning parameters can be
-specified on a per-locality group basis. For example, a lo cality group can be declared to be in-memory. SSTables
+specified on a perlocality group basis. For example, a lo cality group can be declared to be in-memory. SSTables
 for in-memory locality groups are loaded lazily into the
 memory of the tablet server. Once loaded, column fam ilies that belong to such locality groups can be read
 without accessing the disk. This feature is useful for
@@ -319,15 +321,13 @@ To improve read performance, tablet servers use two lev-els of caching. The Scan
 
 ### Compression
 Clients can control whether or not the SSTables for a
-locality group are compressed, and if so, which com pression format is used. The user-specified compres sion format is applied to each SSTable block (whose size
-is controllable via a locality group specific tuning pa rameter). Although we lose some space by compress ing each block separately, we benefit in that small por tions of an SSTable can be read without decompress ing the entire file. Many clients use a two-pass custom
-compression scheme. The first pass uses Bentley and
+locality group are compressed, and if so, which com pression format is used. The user-specified compres sion format is applied to each SSTable block (whose size is controllable via a locality group specific tuning pa rameter). Although we lose some space by compress ing each block separately, we benefit in that small por tions of an SSTable can be read without decompress ing the entire file. Many clients use a two-pass custom compression scheme. The first pass uses Bentley and
 McIlroy’s scheme [6], which compresses long common
 strings across a large window. The second pass uses a
 fast compression algorithm that looks for repetitions in
 a small 16 KB window of the data. Both compression
-passes are very fast(cid:151)they encode at 100(cid:150)200 MB/s, and
-decode at 400(cid:150)1000 MB/s on modern machines.
+passes are very fast---they encode at 100(cid:150)200 MB/s, and
+decode at 400-1000 MB/s on modern machines.
 Even though we emphasized speed instead of space re duction when choosing our compression algorithms, this
 two-pass compression scheme does surprisingly well.
 For example,
@@ -360,23 +360,17 @@ full commit log file and apply just the entries needed for
 the tablets it needs to recover. However, under such a
 scheme, if 100 machines were each assigned a single
 tablet from a failed tablet server, then the log file would
-be read 100 times (once by each server).
-We avoid duplicating log reads by first
+be read 100 times (once by each server).  
 
-sort
-the keys
-
-log entries in order of
- ing the commit
- htable; row name; log sequence numberi.
-
+We avoid duplicating log reads by first sort the keys log entries in order of keys (table; row name; log sequence number).
 In the sorted output, all mutations for a particular tablet are
 contiguous and can therefore be read efficiently with one
 disk seek followed by a sequential read. To parallelize
 the sorting, we partition the log file into 64 MB seg ments, and sort each segment in parallel on different
 tablet servers. This sorting process is coordinated by the
 master and is initiated when a tablet server indicates that
-it needs to recover mutations from some commit log file.
+it needs to recover mutations from some commit log file.  
+
 Writing commit logs to GFS sometimes causes perfor mance hiccups for a variety of reasons (e.g., a GFS server
 machine involved in the write crashes, or the network
 paths traversed to reach the particular set of three GFS
@@ -404,9 +398,7 @@ server without requiring any recovery of log entries.
 
 ### Exploiting immutability
 Besides the SSTable caches, various other parts of the
-Bigtable system have been simplified by the fact that all
-
-of the SSTables that we generate are immutable. For ex-ample, we do not need any synchronization of accessesto the file system when reading from SSTables. As a re-sult, concurrency control over rows can be implementedvery efficiently. The only mutable data structure that isaccessed by both reads and writes is the memtable. To re-duce contention during reads of the memtable, we makeeach memtable row copy-on-write and allow reads andwrites to proceed in parallel.
+Bigtable system have been simplified by the fact that all of the SSTables that we generate are immutable. For ex-ample, we do not need any synchronization of accessesto the file system when reading from SSTables. As a re-sult, concurrency control over rows can be implementedvery efficiently. The only mutable data structure that isaccessed by both reads and writes is the memtable. To re-duce contention during reads of the memtable, we makeeach memtable row copy-on-write and allow reads andwrites to proceed in parallel.
 
 Since SSTables are immutable, the problem of perma-nently removing deleted data is transformed to garbagecollecting obsolete SSTables. Each tablet’s SSTables areregistered in the METADATA table. The master removesobsolete SSTables as a mark-and-sweep garbage collec-tion [25] over the set of SSTables, where the METADATAtable contains the set of roots.
 
@@ -418,7 +410,9 @@ We set up a Bigtable cluster with N tablet servers tomeasure the performance and
 
 The tablet servers and master, test clients, and GFSservers all ran on the same set of machines. Every ma-chine ran a GFS server. Some of the machines also raneither a tablet server, or a client process, or processesfrom other jobs that were using the pool at the same timeas these experiments.
 
-R is the distinct number of Bigtable row keys involvedin the test. R was chosen so that each benchmark read orwrote approximately 1 GB of data per tablet server.The sequential write benchmark used row keys withnames 0 to R (cid:0) 1. This space of row keys was parti-tioned into 10N equal-sized ranges. These ranges wereassigned to the N clients by a central scheduler that as
+R is the distinct number of Bigtable row keys involvedin the test. R was chosen so that each benchmark read orwrote approximately 1 GB of data per tablet server.  
+
+The sequential write benchmark used row keys withnames 0 to R (cid:0) 1. This space of row keys was parti-tioned into 10N equal-sized ranges. These ranges wereassigned to the N clients by a central scheduler that as
 
 ![](figure_6.png)
 
@@ -432,25 +426,29 @@ compression was possible. The random write benchmark
 was similar except that the row key was hashed modulo
 R immediately before writing so that the write load was
 spread roughly uniformly across the entire row space for
-the entire duration of the benchmark.
+the entire duration of the benchmark.  
+
 The sequential read benchmark generated row keys in
 exactly the same way as the sequential write benchmark,
 but instead of writing under the row key, it read the string
 stored under the row key (which was written by an earlier
 invocation of the sequential write benchmark). Similarly,
 the random read benchmark shadowed the operation of
-the random write benchmark.
+the random write benchmark.  
+
 The scan benchmark is similar to the sequential read
 benchmark, but uses support provided by the Bigtable
 API for scanning over all values in a row range. Us ing a scan reduces the number of RPCs executed by the
 benchmark since a single RPC fetches a large sequence
-of values from a tablet server.
+of values from a tablet server.  
+
 The random reads (mem) benchmark is similar to the
 random read benchmark, but the locality group that con tains the benchmark data is marked as in-memory, and
 therefore the reads are satisfied from the tablet server’s
 memory instead of requiring a GFS read. For just this
 benchmark, we reduced the amount of data per tablet
-server from 1 GB to 100 MB so that it would fit com fortably in the memory available to the tablet server.
+server from 1 GB to 100 MB so that it would fit com fortably in the memory available to the tablet server.  
+
 Figure 6 shows two views on the performance of our
 benchmarks when reading and writing 1000-byte values
 to Bigtable. The table shows the number of operations
@@ -473,7 +471,8 @@ clusters.
 performance of random reads from memory increases by
 almost a factor of 300 as the number of tablet server in creases by a factor of 500. This behavior occurs because
 the bottleneck on performance for this benchmark is the
-individual tablet server CPU.
+individual tablet server CPU.  
+
 However, performance does not increase linearly. For
 most benchmarks, there is a significant drop in per-server
 throughput when going from 1 to 50 tablet servers. This
@@ -481,7 +480,8 @@ drop is caused by imbalance in load in multiple server
 configurations, often due to other processes contending
 for CPU and network. Our load balancing algorithm at tempts to deal with this imbalance, but cannot do a per fect job for two main reasons: rebalancing is throttled to
 reduce the number of tablet movements (a tablet is un available for a short time, typically less than one second,
-when it is moved), and the load generated by our bench marks shifts around as the benchmark progresses.
+when it is moved), and the load generated by our bench marks shifts around as the benchmark progresses.  
+
 The random read benchmark shows the worst scaling
 (an increase in aggregate throughput by only a factor of
 100 for a 500-fold increase in number of servers). This
@@ -498,7 +498,8 @@ shows a rough distribution of tablet servers per cluster.
 Many of these clusters are used for development pur poses and therefore are idle for significant periods. One
 group of 14 busy clusters with 8069 total tablet servers
 saw an aggregate volume of more than 1.2 million re quests per second, with incoming RPC traffic of about
-741 MB/s and outgoing RPC traffic of about 16 GB/s.
+741 MB/s and outgoing RPC traffic of about 16 GB/s.  
+
 Table 2 provides some data about a few of the tables
 currently in use. Some tables store data that is served
 to users, whereas others store data for batch processing;
@@ -515,7 +516,9 @@ To enable the service, webmasters embed a smallJavaScript program in their web p
 
 We briefly describe two of the tables used by GoogleAnalytics. The raw click table ((cid:152)200 TB) maintains arow for each end-user session. The row name is a tuplecontaining the website’s name and the time at which thesession was created. This schema ensures that sessionsthat visit the same web site are contiguous, and that theyare sorted chronologically. This table compresses to 14%of its original size.
 
-The summary table ((cid:152)20 TB) contains various prede-fined summaries for each website. This table is gener-ated from the raw click table by periodically scheduledMapReduce jobs. Each MapReduce job extracts recentsession data from the raw click table. The overall sys-tem’s throughput is limited by the throughput of GFS.This table compresses to 29% of its original size.8.2 Google Earth
+The summary table ((cid:152)20 TB) contains various prede-fined summaries for each website. This table is gener-ated from the raw click table by periodically scheduledMapReduce jobs. Each MapReduce job extracts recentsession data from the raw click table. The overall sys-tem’s throughput is limited by the throughput of GFS.This table compresses to 29% of its original size.
+
+### 8.2 Google Earth
 
 Google operates a collection of services that provideusers with access to high-resolution satellite imagery ofthe world’s surface, both through the web-based GoogleMaps interface (maps.google.com) and through theGoogle Earth (earth.google.com) custom client soft-ware. These products allow users to navigate across theworld’s surface: they can pan, view, and annotate satel-lite imagery at many different levels of resolution. Thissystem uses one table to preprocess data, and a differentset of tables for serving client data.
 
@@ -538,7 +541,8 @@ in GFS. This table is relatively small ((cid:152)500 GB), but it
 must serve tens of thousands of queries per second per
 datacenter with low latency. As a result, this table is
 hosted across hundreds of tablet servers and contains in memory column families.
-8.3 Personalized Search
+
+### 8.3 Personalized Search
 Personalized Search (www.google.com/psearch) is an
 opt-in service that records user queries and clicks across
 a variety of Google properties such as web search, im ages, and news. Users can browse their search histories
@@ -556,7 +560,7 @@ user action occurred. Personalized Search generates user
 profiles using a MapReduce over Bigtable. These user
 profiles are used to personalize live search results.
 
-The Personalized Search data is replicated across sev-eral Bigtable clusters to increase availability and to re-duce latency due to distance from clients. The Personal-ized Search team originally built a client-side replicationmechanism on top of Bigtable that ensured eventual con-sistency of all replicas. The current system now uses areplication subsystem that is built into the servers.The design of the Personalized Search storage systemallows other groups to add new per-user information intheir own columns, and the system is now used by manyother Google properties that need to store per-user con-figuration options and settings. Sharing a table amongstmany groups resulted in an unusually large number ofcolumn families. To help support sharing, we added asimple quota mechanism to Bigtable to limit the stor-age consumption by any particular client in shared ta-bles; this mechanism provides some isolation betweenthe various product groups using this system for per-userinformation storage.
+The Personalized Search data is replicated across several Bigtable clusters to increase availability and to reduce latency due to distance from clients. The Personal-ized Search team originally built a client-side replicationmechanism on top of Bigtable that ensured eventual con-sistency of all replicas. The current system now uses areplication subsystem that is built into the servers.The design of the Personalized Search storage systemallows other groups to add new per-user information intheir own columns, and the system is now used by manyother Google properties that need to store per-user con-figuration options and settings. Sharing a table amongstmany groups resulted in an unusually large number ofcolumn families. To help support sharing, we added asimple quota mechanism to Bigtable to limit the stor-age consumption by any particular client in shared ta-bles; this mechanism provides some isolation betweenthe various product groups using this system for per-userinformation storage.
 
 ## 9 Lessons
 
@@ -566,7 +570,8 @@ One lesson we learned is that large distributed sys-tems are vulnerable to many 
 some problems by removing assumptions made by one
 part of the system about another part. For example, we
 stopped assuming a given Chubby operation could return
-only one of a fixed set of errors.
+only one of a fixed set of errors.  
+
 Another lesson we learned is that it is important to
 delay adding new features until it is clear how the new
 features will be used. For example, we initially planned
@@ -576,7 +581,8 @@ been able to examine their actual needs, and have discov ered that most applicat
 be less general than distributed transactions, but will be
 more efficient (especially for updates that span hundreds
 of rows or more) and will also interact better with our
-scheme for optimistic cross-data-center replication.
+scheme for optimistic cross-data-center replication.  
+
 A practical lesson that we learned from supporting
 Bigtable is the importance of proper system-level mon itoring (i.e., monitoring both Bigtable itself, as well as
 the client processes using Bigtable). For example, we ex tended our RPC system so that for a sample of the RPCs,
@@ -587,7 +593,8 @@ METADATA table when METADATA tablets are unavail able. Another example of useful
 us to track down all clusters, discover how big they are,
 see which versions of our software they are running, how
 much traffic they are receiving, and whether or not there
-are any problems such as unexpectedly large latencies.
+are any problems such as unexpectedly large latencies.  
+
 The most important lesson we learned is the value
 of simple designs. Given both the size of our system
 (about 100,000 lines of non-test code), as well as the
@@ -599,7 +606,6 @@ leases to tablet servers, and tablet servers killed them selves if their lease e
 network problems, and was also sensitive to master re covery time. We redesigned the protocol several times
 until we had a protocol that performed well. However,
 the resulting protocol was too complex and depended on
-
 the behavior of Chubby features that were seldom exer-cised by other applications. We discovered that we werespending an inordinate amount of time debugging ob-scure corner cases, not only in Bigtable code, but also inChubby code. Eventually, we scrapped this protocol andmoved to a newer simpler protocol that depends solelyon widely-used Chubby features.
 
 ## 10 Related Work
@@ -653,7 +659,7 @@ on disk, rather than trying to determine this dynamically;
 
 Given the unusual interface to Bigtable, an interest-ing question is how difficult it has been for our users toadapt to using it. New users are sometimes uncertain ofhow to best use the Bigtable interface, particularly if theyare accustomed to using relational databases that supportgeneral-purpose transactions. Nevertheless, the fact thatmany Google products successfully use Bigtable demon-strates that our design works well in practice.
 
-We are in the process of implementing several addi-tional Bigtable features, such as support for secondaryindices and infrastructure for building cross-data-centerreplicated Bigtables with multiple master replicas. Wehave also begun deploying Bigtable as a service to prod-uct groups, so that individual groups do not need to main-tain their own clusters. As our service clusters scale,we will need to deal with more resource-sharing issueswithin Bigtable itself [3, 5].
+We are in the process of implementing several additional Bigtable features, such as support for secondaryindices and infrastructure for building cross-data-centerreplicated Bigtables with multiple master replicas. Wehave also begun deploying Bigtable as a service to prod-uct groups, so that individual groups do not need to main-tain their own clusters. As our service clusters scale,we will need to deal with more resource-sharing issueswithin Bigtable itself [3, 5].
 
 Finally, we have found that there are significant ad-vantages to building our own storage solution at Google.We have gotten a substantial amount of flexibility fromdesigning our own data model for Bigtable.
 
@@ -662,7 +668,6 @@ In addi-tion, our control over Bigtable’s implementation, andthe other Google 
 ## Acknowledgements
 
 We thank the anonymous reviewers, David Nagle, andour shepherd Brad Calder, for their feedback on this pa-per. The Bigtable system has benefited greatly from thefeedback of our many users within Google. In addition,we thank the following people for their contributions toBigtable: Dan Aguayo, Sameer Ajmani, Zhifeng Chen,Bill Coughran, Mike Epstein, Healfdene Goguen, RobertGriesemer, Jeremy Hylton, Josh Hyman, Alex Khesin,Joanna Kulik, Alberto Lerner, Sherry Listgarten, MikeMaloney, Eduardo Pinheiro, Kathy Polizzi, Frank Yellin,and Arthur Zwiegincew.
-
 
 
 ## 11 Conclusions
